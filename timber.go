@@ -113,6 +113,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strings"
 	"sync"
 	"time"
 )
@@ -226,6 +227,7 @@ type LogRecord struct {
 	SourceLine  int
 	Message     string
 	FuncPath    string
+	MethodPath  string
 	PackagePath string
 }
 
@@ -363,6 +365,12 @@ func sendToLoggers(loggers []ConfigLogger, rec *LogRecord) {
 			sendToLogger(rec, gLevel, formatted, cLog)
 			continue
 		}
+		// Find any package + method level definitions.
+		gLevel, ok = cLog.Granulars[rec.MethodPath]
+		if ok {
+			sendToLogger(rec, gLevel, formatted, cLog)
+			continue
+		}
 		// Find any package level definitions.
 		gLevel, ok = cLog.Granulars[rec.PackagePath]
 		if ok {
@@ -426,15 +434,34 @@ func (t *Timber) prepareAndSend(lvl Level, msg string, depth int) {
 	}
 }
 
+// Return package.function into just the package component.
+// Parse some.package/with/bits.Func or some.package/with/bits.(Type).Func
+// and return the full pkg path and (if a method call) the method path too
+func parseFuncName(funcName string) (string, string) {
+	packagePath := ""
+	methodPath := ""
+
+	lastDot := strings.LastIndex(funcName, ".")
+	packagePath = funcName[:lastDot]
+
+	if packagePath[len(packagePath)-1] == ')' {
+		methodPath = packagePath
+		lastDot := strings.LastIndex(packagePath, ".")
+		packagePath = packagePath[:lastDot]
+	}
+	return packagePath, methodPath
+}
+
 func (t *Timber) prepare(lvl Level, msg string, depth int) *LogRecord {
 	now := time.Now()
 	pc, file, line, _ := runtime.Caller(depth)
 	funcPath := "_"
 	packagePath := "_"
+	methodPath := "_"
 	me := runtime.FuncForPC(pc)
 	if me != nil {
 		funcPath = me.Name()
-		packagePath = splitPackage(funcPath)
+		packagePath, methodPath = parseFuncName(funcPath)
 	}
 
 	return &LogRecord{
@@ -444,6 +471,7 @@ func (t *Timber) prepare(lvl Level, msg string, depth int) *LogRecord {
 		SourceLine:  line,
 		Message:     msg,
 		FuncPath:    funcPath,
+		MethodPath:  methodPath,
 		PackagePath: packagePath,
 	}
 }

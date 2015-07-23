@@ -16,12 +16,6 @@ type PatFormatter struct {
 	formatDynamic []byte
 }
 
-// Split a full package.function into just the package component.
-func splitPackage(pkg string) string {
-	split := strings.Split(pkg, ".")
-	return strings.Join(split[:len(split)-1], "")
-}
-
 // Format codes:
 //   %T - Time: 17:24:05.333 HH:MM:SS.ms
 //   %t - Time: 17:24:05 HH:MM:SS
@@ -119,14 +113,14 @@ func (pf *PatFormatter) compileForLevel(level int) []byte {
 			sprintfFmt = append(sprintfFmt, 's')
 			sprintfFmt = append(sprintfFmt, fmt_str[1:]...)
 			pf.formatDynamic = append(pf.formatDynamic, 'L')
-                case 'l':
-                        sprintfFmt = append(sprintfFmt, '%')
-                        if num != nil {
-                                sprintfFmt = append(sprintfFmt, num...)
-                        }
-                        sprintfFmt = append(sprintfFmt, 's')
-                        sprintfFmt = append(sprintfFmt, fmt_str[1:]...)
-                        pf.formatDynamic = append(pf.formatDynamic, 'l')
+		case 'l':
+			sprintfFmt = append(sprintfFmt, '%')
+			if num != nil {
+				sprintfFmt = append(sprintfFmt, num...)
+			}
+			sprintfFmt = append(sprintfFmt, 's')
+			sprintfFmt = append(sprintfFmt, fmt_str[1:]...)
+			pf.formatDynamic = append(pf.formatDynamic, 'l')
 		case 'S':
 			sprintfFmt = append(sprintfFmt, '%')
 			if num != nil {
@@ -210,8 +204,8 @@ func (pf *PatFormatter) getDynamic(rec *LogRecord) []interface{} {
 			ret = append(ret, parseDate(tm)...)
 		case 'L':
 			ret = append(ret, LevelStrings[rec.Level])
-                case 'l':
-                        ret = append(ret, LongLevelStrings[rec.Level])
+		case 'l':
+			ret = append(ret, LongLevelStrings[rec.Level])
 		case 'S':
 			ret = append(ret, parseSourceLong(rec.SourceFile, rec.SourceLine))
 		case 's':
