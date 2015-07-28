@@ -229,6 +229,7 @@ type LogRecord struct {
 	FuncPath    string
 	MethodPath  string
 	PackagePath string
+	HostName    string
 }
 
 // Format a log message before writing
@@ -463,6 +464,7 @@ func (t *Timber) prepare(lvl Level, msg string, depth int) *LogRecord {
 		funcPath = me.Name()
 		packagePath, methodPath = parseFuncName(funcPath)
 	}
+	hostName, _ := os.Hostname()
 
 	return &LogRecord{
 		Level:       lvl,
@@ -473,6 +475,7 @@ func (t *Timber) prepare(lvl Level, msg string, depth int) *LogRecord {
 		FuncPath:    funcPath,
 		MethodPath:  methodPath,
 		PackagePath: packagePath,
+		HostName:    hostName,
 	}
 }
 
