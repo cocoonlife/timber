@@ -327,6 +327,8 @@ func (t *Timber) asyncLumberJack() {
 				loggers = append(loggers, cfg.Cfg)
 				cfg.Ret <- (len(loggers) - 1)
 			case actionSet:
+				// Old writer may want to flush, close handles etc.
+				loggers[cfg.Index].LogWriter.Close()
 				loggers[cfg.Index] = cfg.Cfg
 			case actionModify:
 			case actionQuit:
@@ -399,7 +401,7 @@ func (t *Timber) AddLogger(logger ConfigLogger) int {
 
 func (t *Timber) SetLogger(index int, logger ConfigLogger) {
 	tcChan := make(chan int, 1) // buffered
-	tc := timberConfig{Action: actionSet, Cfg: logger, Ret: tcChan}
+	tc := timberConfig{Action: actionSet, Cfg: logger, Ret: tcChan, Index: index}
 	t.writerConfigChan <- tc
 }
 
