@@ -333,7 +333,6 @@ func (t *Timber) asyncLumberJack() {
 			case actionModify:
 			case actionQuit:
 				close(t.blackHole)
-				close(t.recordChan)
 				loopIt = false
 				defer func() {
 					cfg.Ret <- 0
@@ -341,9 +340,15 @@ func (t *Timber) asyncLumberJack() {
 			}
 		} // select
 	} // for
-	// drain the log channel before closing
-	for rec := range t.recordChan {
-		sendToLoggers(loggers, rec)
+	// drain the log channel before closing (best effort)
+	loopIt = true
+	for loopIt {
+		select {
+		case rec := <-t.recordChan:
+			sendToLoggers(loggers, rec)
+		default:
+			loopIt = false
+		}
 	}
 	closeAllWriters(loggers)
 }
