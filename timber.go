@@ -460,8 +460,17 @@ func parseFuncName(funcName string) (string, string) {
 	return packagePath, methodPath
 }
 
+// makeTimeLogglyCompat takes a time converts it into a time parseable by loggly
+// loggly can only parse up to 6 places of fractional seconds
+func makeTimeLogglyCompat(t time.Time) time.Time {
+	RFC3339Micro := "2006-01-02T15:04:05.999999Z07:00"
+	tStr := t.UTC().Format(RFC3339Micro)
+	tLoggly, _ := time.Parse(RFC3339Micro, tStr)
+	return tLoggly
+}
+
 func (t *Timber) prepare(lvl Level, msg string, depth int) *LogRecord {
-	now := time.Now()
+	now := makeTimeLogglyCompat(time.Now())
 	pc, file, line, _ := runtime.Caller(depth)
 	funcPath := "_"
 	packagePath := "_"
