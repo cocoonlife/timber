@@ -58,11 +58,11 @@ func (t *Timber) LoadXMLConfig(filename string) error {
 		if !filter.Enabled {
 			continue
 		}
-		level := getLevel(filter.Level)
+		level := GetLevel(filter.Level)
 		formatter := getXMLFormatter(filter)
 		granulars := make(map[string]Level)
 		for _, granular := range filter.Granulars {
-			granulars[granular.Path] = getLevel(granular.Level)
+			granulars[granular.Path] = GetLevel(granular.Level)
 		}
 		configLogger := ConfigLogger{Level: level, Formatter: formatter, Granulars: granulars}
 

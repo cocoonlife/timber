@@ -152,8 +152,8 @@ var LongLevelStrings = []string{
 	"CRITICAL",
 }
 
-// Return a given level string as the actual Level value
-func getLevel(lvlString string) Level {
+// GetLevel returns a given level string as the actual Level value
+func GetLevel(lvlString string) Level {
 	for idx, str := range LongLevelStrings {
 		if str == lvlString {
 			return Level(idx)

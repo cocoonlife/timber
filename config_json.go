@@ -35,7 +35,7 @@ type JSONConfig struct {
 }
 
 // Loads the configuration from an JSON file (as you were probably expecting)
-func (t *Timber) LoadJSONConfig(filename string) (error) {
+func (t *Timber) LoadJSONConfig(filename string) error {
 	if len(filename) <= 0 {
 		return fmt.Errorf("Empty filename")
 	}
@@ -56,14 +56,14 @@ func (t *Timber) LoadJSONConfig(filename string) (error) {
 		if !filter.Enabled {
 			continue
 		}
-		level := getLevel(filter.Level)
+		level := GetLevel(filter.Level)
 		formatter := getJSONFormatter(filter)
 		if err != nil {
 			return err
 		}
 		granulars := make(map[string]Level)
 		for _, granular := range filter.Granulars {
-			granulars[granular.Path] = getLevel(granular.Level)
+			granulars[granular.Path] = GetLevel(granular.Level)
 		}
 		configLogger := ConfigLogger{Level: level, Formatter: formatter, Granulars: granulars}
 
