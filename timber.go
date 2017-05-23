@@ -222,10 +222,10 @@ type LogWriter interface {
 // will be passed to the LogFormatter
 type LogRecord struct {
 	Level       Level
-	Timestamp   time.Time
+	Timestamp   time.Time `json:"timestamp"`
 	SourceFile  string
 	SourceLine  int
-	Message     string
+	Message     string `json:"message"`
 	FuncPath    string
 	MethodPath  string
 	PackagePath string
