@@ -282,6 +282,7 @@ type Timber struct {
 	// This value is passed to runtime.Caller to get the file name/line and may require
 	// tweaking if you want to wrap the logger
 	FileDepth int
+	Hostname  func() string
 }
 
 type timberAction int
@@ -310,6 +311,10 @@ func NewTimber() *Timber {
 	t.FileDepth = DefaultFileDepth
 	t.closeLatch = &sync.Once{}
 	t.blackHole = make(chan int)
+	t.Hostname = func() string {
+		h, _ := os.Hostname()
+		return h
+	}
 	go t.asyncLumberJack()
 	return t
 }
@@ -480,8 +485,11 @@ func (t *Timber) prepare(lvl Level, msg string, depth int) *LogRecord {
 		funcPath = me.Name()
 		packagePath, methodPath = parseFuncName(funcPath)
 	}
-	hostName, _ := os.Hostname()
 
+	var hostname string
+	if t.Hostname != nil {
+		hostname = t.Hostname()
+	}
 	return &LogRecord{
 		Level:       lvl,
 		Timestamp:   now,
@@ -491,7 +499,7 @@ func (t *Timber) prepare(lvl Level, msg string, depth int) *LogRecord {
 		FuncPath:    funcPath,
 		MethodPath:  methodPath,
 		PackagePath: packagePath,
-		HostName:    hostName,
+		HostName:    hostname,
 	}
 }
 
