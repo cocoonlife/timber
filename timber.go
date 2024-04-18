@@ -728,6 +728,34 @@ func Fatal(v ...interface{})                 { Global.Fatal(v...) }
 func Fatalf(format string, v ...interface{}) { Global.Fatalf(format, v...) }
 func Fatalln(v ...interface{})               { Global.Fatalln(v...) }
 
+func FinestEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+	Global.FinestEx(extra, arg0, args...)
+}
+func FineEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+	Global.FineEx(extra, arg0, args...)
+}
+func DebugEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+	Global.DebugEx(extra, arg0, args...)
+}
+func TraceEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+	Global.TraceEx(extra, arg0, args...)
+}
+func InfoEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+	Global.InfoEx(extra, arg0, args...)
+}
+func WarnEx(extra map[string]string, arg0 interface{}, args ...interface{}) error {
+	return Global.WarnEx(extra, arg0, args...)
+}
+func ErrorEx(extra map[string]string, arg0 interface{}, args ...interface{}) error {
+	return Global.ErrorEx(extra, arg0, args...)
+}
+func CriticalEx(extra map[string]string, arg0 interface{}, args ...interface{}) error {
+	return Global.CriticalEx(extra, arg0, args...)
+}
+func LogEx(extra map[string]string, lvl Level, arg0 interface{}, args ...interface{}) {
+	Global.LogEx(extra, lvl, arg0, args...)
+}
+
 func AddLogger(logger ConfigLogger) int { return Global.AddLogger(logger) }
 func Close()                            { Global.Close() }
 
