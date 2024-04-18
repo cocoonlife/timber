@@ -532,7 +532,7 @@ var emptyExtra map[string]string
 // log.SetOutput().  It is not a general Writer interface and assumes one
 // message per call to Write. All messages are send at level INFO
 func (t *Timber) Write(p []byte) (n int, err error) {
-	t.prepareAndSend(INFO, string(bytes.TrimSpace(p)), 4)
+	t.prepareAndSend(INFO, emptyExtra, string(bytes.TrimSpace(p)), 4)
 	return len(p), nil
 }
 
