@@ -113,7 +113,7 @@ func TestJSONFormatterLogger(t *testing.T) {
 	json.Unmarshal([]byte(firstLog), &firstLogMap)
 	json.Unmarshal([]byte(secondLog), &secondLogMap)
 
-	expectedSharedKeys := []string{"Level", "timestamp", "SourceFile", "SourceFile", "message", "FuncPath", "FuncPath", "PackagePath", "HostName"}
+	expectedSharedKeys := []string{"Level", "timestamp", "SourceFile", "SourceLine", "message", "FuncPath", "MethodPath", "PackagePath", "HostName"}
 
 	// just check for presence of keys, as things like timestamp, hostname etc dependent on environment
 	for _, k := range expectedSharedKeys {
