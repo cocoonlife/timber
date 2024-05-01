@@ -474,7 +474,7 @@ func (t *Timber) doPrepareAndSend(lvl Level, extra map[string]string, msg string
 		// then it always succeeds so we avoid writing
 		// to the closed channel
 	default:
-		t.recordChan <- t.prepare(lvl, extra, msg, depth+2) // +2 required due to include the prepareAndSend function(s)
+		t.recordChan <- t.prepare(lvl, extra, msg, depth+2) // +2 required to accommodate the prepareAndSend function(s) in the call stack
 	}
 }
 
