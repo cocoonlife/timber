@@ -458,7 +458,16 @@ func (t *Timber) SetFormatter(index int, formatter LogFormatter) {
 }
 
 // Logger interface
-func (t *Timber) prepareAndSend(lvl Level, extra map[string]string, msg string, depth int) {
+func (t *Timber) prepareAndSend(lvl Level, msg string, depth int) {
+	var emptyExtra map[string]string
+	t.doPrepareAndSend(lvl, emptyExtra, msg, depth)
+}
+
+func (t *Timber) prepareAndSendEx(lvl Level, extra map[string]string, msg string, depth int) {
+	t.doPrepareAndSend(lvl, extra, msg, depth)
+}
+
+func (t *Timber) doPrepareAndSend(lvl Level, extra map[string]string, msg string, depth int) {
 	select {
 	case <-t.blackHole:
 		// the blackHole always blocks until we close
@@ -526,166 +535,164 @@ func (t *Timber) prepare(lvl Level, extra map[string]string, msg string, depth i
 	}
 }
 
-var emptyExtra map[string]string
-
 // This function allows a Timber instance to be used in the standard library
 // log.SetOutput().  It is not a general Writer interface and assumes one
 // message per call to Write. All messages are send at level INFO
 func (t *Timber) Write(p []byte) (n int, err error) {
-	t.prepareAndSend(INFO, emptyExtra, string(bytes.TrimSpace(p)), 4)
+	t.prepareAndSend(INFO, string(bytes.TrimSpace(p)), 4)
 	return len(p), nil
 }
 
 func (t *Timber) Finest(arg0 interface{}, args ...interface{}) {
-	t.prepareAndSend(FINEST, emptyExtra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
+	t.prepareAndSend(FINEST, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
 }
 func (t *Timber) Fine(arg0 interface{}, args ...interface{}) {
-	t.prepareAndSend(FINE, emptyExtra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
+	t.prepareAndSend(FINE, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
 }
 func (t *Timber) Debug(arg0 interface{}, args ...interface{}) {
-	t.prepareAndSend(DEBUG, emptyExtra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
+	t.prepareAndSend(DEBUG, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
 }
 func (t *Timber) Trace(arg0 interface{}, args ...interface{}) {
-	t.prepareAndSend(TRACE, emptyExtra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
+	t.prepareAndSend(TRACE, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
 }
 func (t *Timber) Info(arg0 interface{}, args ...interface{}) {
-	t.prepareAndSend(INFO, emptyExtra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
+	t.prepareAndSend(INFO, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
 }
 func (t *Timber) Warn(arg0 interface{}, args ...interface{}) error {
 	msg := fmt.Sprintf(arg0.(string), args...)
-	t.prepareAndSend(WARNING, emptyExtra, msg, t.FileDepth)
+	t.prepareAndSend(WARNING, msg, t.FileDepth)
 	return errors.New(msg)
 }
 func (t *Timber) Error(arg0 interface{}, args ...interface{}) error {
 	msg := fmt.Sprintf(arg0.(string), args...)
-	t.prepareAndSend(ERROR, emptyExtra, msg, t.FileDepth)
+	t.prepareAndSend(ERROR, msg, t.FileDepth)
 	return errors.New(msg)
 }
 func (t *Timber) Critical(arg0 interface{}, args ...interface{}) error {
 	msg := fmt.Sprintf(arg0.(string), args...)
-	t.prepareAndSend(CRITICAL, emptyExtra, msg, t.FileDepth)
+	t.prepareAndSend(CRITICAL, msg, t.FileDepth)
 	return errors.New(msg)
 }
 func (t *Timber) Log(lvl Level, arg0 interface{}, args ...interface{}) {
-	t.prepareAndSend(lvl, emptyExtra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
+	t.prepareAndSend(lvl, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
 }
 
 // The govet printf family of warnings triggers on Erorr() and similar containing format strings
 // Add more golike Foof() formatters. Other methods should be considered deprecated
 func (t *Timber) Finestf(arg0 interface{}, args ...interface{}) {
-	t.prepareAndSend(FINEST, emptyExtra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
+	t.prepareAndSend(FINEST, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
 }
 func (t *Timber) Finef(arg0 interface{}, args ...interface{}) {
-	t.prepareAndSend(FINE, emptyExtra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
+	t.prepareAndSend(FINE, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
 }
 func (t *Timber) Debugf(arg0 interface{}, args ...interface{}) {
-	t.prepareAndSend(DEBUG, emptyExtra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
+	t.prepareAndSend(DEBUG, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
 }
 func (t *Timber) Tracef(arg0 interface{}, args ...interface{}) {
-	t.prepareAndSend(TRACE, emptyExtra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
+	t.prepareAndSend(TRACE, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
 }
 func (t *Timber) Infof(arg0 interface{}, args ...interface{}) {
-	t.prepareAndSend(INFO, emptyExtra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
+	t.prepareAndSend(INFO, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
 }
 func (t *Timber) Warnf(arg0 interface{}, args ...interface{}) error {
 	msg := fmt.Sprintf(arg0.(string), args...)
-	t.prepareAndSend(WARNING, emptyExtra, msg, t.FileDepth)
+	t.prepareAndSend(WARNING, msg, t.FileDepth)
 	return errors.New(msg)
 }
 func (t *Timber) Errorf(arg0 interface{}, args ...interface{}) error {
 	msg := fmt.Sprintf(arg0.(string), args...)
-	t.prepareAndSend(ERROR, emptyExtra, msg, t.FileDepth)
+	t.prepareAndSend(ERROR, msg, t.FileDepth)
 	return errors.New(msg)
 }
 func (t *Timber) Criticalf(arg0 interface{}, args ...interface{}) error {
 	msg := fmt.Sprintf(arg0.(string), args...)
-	t.prepareAndSend(CRITICAL, emptyExtra, msg, t.FileDepth)
+	t.prepareAndSend(CRITICAL, msg, t.FileDepth)
 	return errors.New(msg)
 }
 func (t *Timber) Logf(lvl Level, arg0 interface{}, args ...interface{}) {
-	t.prepareAndSend(lvl, emptyExtra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
+	t.prepareAndSend(lvl, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
 }
 
 // Print won't work well with a pattern_logger because it explicitly adds
 // its own \n; so you'd have to write your own formatter to remove it
 func (t *Timber) Print(v ...interface{}) {
-	t.prepareAndSend(DEBUG, emptyExtra, fmt.Sprint(v...), t.FileDepth)
+	t.prepareAndSend(DEBUG, fmt.Sprint(v...), t.FileDepth)
 }
 func (t *Timber) Printf(format string, v ...interface{}) {
-	t.prepareAndSend(DEBUG, emptyExtra, fmt.Sprintf(format, v...), t.FileDepth)
+	t.prepareAndSend(DEBUG, fmt.Sprintf(format, v...), t.FileDepth)
 }
 
 // Println won't work well either with a pattern_logger because it explicitly adds
 // its own \n; so you'd have to write your own formatter to not have 2 \n's
 func (t *Timber) Println(v ...interface{}) {
-	t.prepareAndSend(DEBUG, emptyExtra, fmt.Sprintln(v...), t.FileDepth)
+	t.prepareAndSend(DEBUG, fmt.Sprintln(v...), t.FileDepth)
 }
 func (t *Timber) Panic(v ...interface{}) {
 	msg := fmt.Sprint(v...)
-	t.prepareAndSend(CRITICAL, emptyExtra, msg, t.FileDepth)
+	t.prepareAndSend(CRITICAL, msg, t.FileDepth)
 	panic(msg)
 }
 func (t *Timber) Panicf(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
-	t.prepareAndSend(CRITICAL, emptyExtra, msg, t.FileDepth)
+	t.prepareAndSend(CRITICAL, msg, t.FileDepth)
 	panic(msg)
 }
 func (t *Timber) Panicln(v ...interface{}) {
 	msg := fmt.Sprintln(v...)
-	t.prepareAndSend(CRITICAL, emptyExtra, msg, t.FileDepth)
+	t.prepareAndSend(CRITICAL, msg, t.FileDepth)
 	panic(msg)
 }
 func (t *Timber) Fatal(v ...interface{}) {
 	msg := fmt.Sprint(v...)
-	t.prepareAndSend(CRITICAL, emptyExtra, msg, t.FileDepth)
+	t.prepareAndSend(CRITICAL, msg, t.FileDepth)
 	t.Close()
 	os.Exit(1)
 }
 func (t *Timber) Fatalf(format string, v ...interface{}) {
 	msg := fmt.Sprintf(format, v...)
-	t.prepareAndSend(CRITICAL, emptyExtra, msg, t.FileDepth)
+	t.prepareAndSend(CRITICAL, msg, t.FileDepth)
 	t.Close()
 	os.Exit(1)
 }
 func (t *Timber) Fatalln(v ...interface{}) {
 	msg := fmt.Sprintln(v...)
-	t.prepareAndSend(CRITICAL, emptyExtra, msg, t.FileDepth)
+	t.prepareAndSend(CRITICAL, msg, t.FileDepth)
 	t.Close()
 	os.Exit(1)
 }
 
 func (t *Timber) FinestEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
-	t.prepareAndSend(FINEST, extra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
+	t.prepareAndSendEx(FINEST, extra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
 }
 func (t *Timber) FineEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
-	t.prepareAndSend(FINE, extra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
+	t.prepareAndSendEx(FINE, extra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
 }
 func (t *Timber) DebugEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
-	t.prepareAndSend(DEBUG, extra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
+	t.prepareAndSendEx(DEBUG, extra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
 }
 func (t *Timber) TraceEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
-	t.prepareAndSend(TRACE, extra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
+	t.prepareAndSendEx(TRACE, extra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
 }
 func (t *Timber) InfoEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
-	t.prepareAndSend(INFO, extra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
+	t.prepareAndSendEx(INFO, extra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
 }
 func (t *Timber) WarnEx(extra map[string]string, arg0 interface{}, args ...interface{}) error {
 	msg := fmt.Sprintf(arg0.(string), args...)
-	t.prepareAndSend(WARNING, extra, msg, t.FileDepth)
+	t.prepareAndSendEx(WARNING, extra, msg, t.FileDepth)
 	return errors.New(msg)
 }
 func (t *Timber) ErrorEx(extra map[string]string, arg0 interface{}, args ...interface{}) error {
 	msg := fmt.Sprintf(arg0.(string), args...)
-	t.prepareAndSend(ERROR, extra, msg, t.FileDepth)
+	t.prepareAndSendEx(ERROR, extra, msg, t.FileDepth)
 	return errors.New(msg)
 }
 func (t *Timber) CriticalEx(extra map[string]string, arg0 interface{}, args ...interface{}) error {
 	msg := fmt.Sprintf(arg0.(string), args...)
-	t.prepareAndSend(CRITICAL, extra, msg, t.FileDepth)
+	t.prepareAndSendEx(CRITICAL, extra, msg, t.FileDepth)
 	return errors.New(msg)
 }
 func (t *Timber) LogEx(extra map[string]string, lvl Level, arg0 interface{}, args ...interface{}) {
-	t.prepareAndSend(lvl, extra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
+	t.prepareAndSendEx(lvl, extra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
 }
 
 //
