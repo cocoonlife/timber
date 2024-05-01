@@ -6,79 +6,91 @@
 // quickly.  It's also easy to configure in code if you want to DIY.
 //
 // Basic use:
-//   import "timber"
-//   timber.LoadConfiguration("timber.xml")
-//   timber.Debug("Debug message!")
+//
+//	import "timber"
+//	timber.LoadConfiguration("timber.xml")
+//	timber.Debug("Debug message!")
 //
 // IMPORTANT: timber has not default destination configured so log messages
 // will be dropped until a destination is configured
 //
 // It can be used as a drop-in replacement for the standard logger
 // by changing the log import statement from:
-//   import "log"
+//
+//	import "log"
+//
 // to
-//   import log "timber"
+//
+//	import log "timber"
 //
 // It can also be used as the output of the standard logger with
-//   log.SetFlags(0)
-//   log.SetOutput(timber.Global)
+//
+//	log.SetFlags(0)
+//	log.SetOutput(timber.Global)
 //
 // Configuration in code is also simple:
-//		timber.AddLogger(timber.ConfigLogger{
-//			LogWriter: new(timber.ConsoleWriter),
-//			Level:     timber.DEBUG,
-//			Formatter: timber.NewPatFormatter("[%D %T] [%L] %S %M"),
-//		})
+//
+//	timber.AddLogger(timber.ConfigLogger{
+//		LogWriter: new(timber.ConsoleWriter),
+//		Level:     timber.DEBUG,
+//		Formatter: timber.NewPatFormatter("[%D %T] [%L] %S %M"),
+//	})
 //
 // XML Config file:
-//		<logging>
-//		  <filter enabled="true">
-//			<tag>stdout</tag>
-//			<type>console</type>
-//			<!-- level is (:?FINEST|FINE|DEBUG|TRACE|INFO|WARNING|ERROR) -->
-//			<level>DEBUG</level>
-//		  </filter>
-//		  <filter enabled="true">
-//			<tag>file</tag>
-//			<type>file</type>
-//			<level>FINEST</level>
-//			<granular>
-//			  <level>INFO</level>
-//			  <path>path/to/package.FunctionName</path>
-//			</granular>
-//			<granular>
-//			  <level>WARNING</level>
-//			  <path>path/to/package</path>
-//			</granular>
-//			<property name="filename">log/server.log</property>
-//			<property name="format">server [%D %T] [%L] %M</property>
-//		  </filter>
-//		  <filter enabled="false">
-//			<tag>syslog</tag>
-//			<type>socket</type>
-//			<level>FINEST</level>
-//			<property name="protocol">unixgram</property>
-//			<property name="endpoint">/dev/log</property>
-//		    <format name="pattern">%L %M</property>
-//		  </filter>
-//		</logging>
+//
+//	<logging>
+//	  <filter enabled="true">
+//		<tag>stdout</tag>
+//		<type>console</type>
+//		<!-- level is (:?FINEST|FINE|DEBUG|TRACE|INFO|WARNING|ERROR) -->
+//		<level>DEBUG</level>
+//	  </filter>
+//	  <filter enabled="true">
+//		<tag>file</tag>
+//		<type>file</type>
+//		<level>FINEST</level>
+//		<granular>
+//		  <level>INFO</level>
+//		  <path>path/to/package.FunctionName</path>
+//		</granular>
+//		<granular>
+//		  <level>WARNING</level>
+//		  <path>path/to/package</path>
+//		</granular>
+//		<property name="filename">log/server.log</property>
+//		<property name="format">server [%D %T] [%L] %M</property>
+//	  </filter>
+//	  <filter enabled="false">
+//		<tag>syslog</tag>
+//		<type>socket</type>
+//		<level>FINEST</level>
+//		<property name="protocol">unixgram</property>
+//		<property name="endpoint">/dev/log</property>
+//	    <format name="pattern">%L %M</property>
+//	  </filter>
+//	</logging>
+//
 // The <tag> is ignored.
 //
 // To configure the pattern formatter all filters accept:
-//		<format name="pattern">[%D %T] %L %M</format>
+//
+//	<format name="pattern">[%D %T] %L %M</format>
+//
 // Pattern format specifiers (not the same as log4go!):
-// 		%T - Time: 17:24:05.333 HH:MM:SS.ms
-// 		%t - Time: 17:24:05 HH:MM:SS
-// 		%D - Date: 2011-12-25 yyyy-mm-dd
-// 		%d - Date: 2011/12/25 yyyy/mm/dd
-// 		%L - Level (FNST, FINE, DEBG, TRAC, WARN, EROR, CRIT)
-// 		%S - Source: full runtime.Caller line and line number
-// 		%s - Short Source: just file and line number
-// 		%x - Extra Short Source: just file without .go suffix
-// 		%M - Message
-// 		%% - Percent sign
-// 		%P - Caller Path: packagePath.CallingFunctionName
-// 		%p - Caller Path: packagePath
+//
+//	%T - Time: 17:24:05.333 HH:MM:SS.ms
+//	%t - Time: 17:24:05 HH:MM:SS
+//	%D - Date: 2011-12-25 yyyy-mm-dd
+//	%d - Date: 2011/12/25 yyyy/mm/dd
+//	%L - Level (FNST, FINE, DEBG, TRAC, WARN, EROR, CRIT)
+//	%S - Source: full runtime.Caller line and line number
+//	%s - Short Source: just file and line number
+//	%x - Extra Short Source: just file without .go suffix
+//	%M - Message
+//	%% - Percent sign
+//	%P - Caller Path: packagePath.CallingFunctionName
+//	%p - Caller Path: packagePath
+//
 // the string number prefixes are allowed e.g.: %10s will pad the source field to 10 spaces
 // pattern defaults to %M
 // Both log4go synatax of <property name="format"> and new <format name=type> are supported
@@ -104,7 +116,6 @@
 // with log4go for the interface and configuration.  The main issue I had with log4go was that each of
 // logger types had incisistent and incompatible configuration.  I looked at contributing changes to
 // log4go, but I would have needed to break existing use cases so I decided to do a rewrite from scratch.
-//
 package timber
 
 import (
@@ -198,6 +209,17 @@ type Logger interface {
 	Errorf(arg0 interface{}, args ...interface{}) error
 	Criticalf(arg0 interface{}, args ...interface{}) error
 	Logf(lvl Level, arg0 interface{}, args ...interface{})
+
+	// allow passing of extra fields on the fly
+	FinestEx(extra map[string]string, arg0 interface{}, args ...interface{})
+	FineEx(extra map[string]string, arg0 interface{}, args ...interface{})
+	DebugEx(extra map[string]string, arg0 interface{}, args ...interface{})
+	TraceEx(extra map[string]string, arg0 interface{}, args ...interface{})
+	InfoEx(extra map[string]string, arg0 interface{}, args ...interface{})
+	WarnEx(extra map[string]string, arg0 interface{}, args ...interface{}) error
+	ErrorEx(extra map[string]string, arg0 interface{}, args ...interface{}) error
+	CriticalEx(extra map[string]string, arg0 interface{}, args ...interface{}) error
+	LogEx(extra map[string]string, lvl Level, arg0 interface{}, args ...interface{})
 }
 
 // Not used
@@ -230,6 +252,7 @@ type LogRecord struct {
 	MethodPath  string
 	PackagePath string
 	HostName    string
+	Extra       map[string]string `json:"extra,omitempty"`
 }
 
 // Format a log message before writing
@@ -303,7 +326,6 @@ type timberConfig struct {
 
 // Creates a new Timber logger that is ready to be configured
 // With no subsequent configuration, nothing will be logged
-//
 func NewTimber() *Timber {
 	t := new(Timber)
 	t.writerConfigChan = make(chan timberConfig)
@@ -437,13 +459,22 @@ func (t *Timber) SetFormatter(index int, formatter LogFormatter) {
 
 // Logger interface
 func (t *Timber) prepareAndSend(lvl Level, msg string, depth int) {
+	var emptyExtra map[string]string
+	t.doPrepareAndSend(lvl, emptyExtra, msg, depth)
+}
+
+func (t *Timber) prepareAndSendEx(lvl Level, extra map[string]string, msg string, depth int) {
+	t.doPrepareAndSend(lvl, extra, msg, depth)
+}
+
+func (t *Timber) doPrepareAndSend(lvl Level, extra map[string]string, msg string, depth int) {
 	select {
 	case <-t.blackHole:
 		// the blackHole always blocks until we close
 		// then it always succeeds so we avoid writing
 		// to the closed channel
 	default:
-		t.recordChan <- t.prepare(lvl, msg, depth+1)
+		t.recordChan <- t.prepare(lvl, extra, msg, depth+1)
 	}
 }
 
@@ -474,7 +505,7 @@ func makeTimeLogglyCompat(t time.Time) time.Time {
 	return tLoggly
 }
 
-func (t *Timber) prepare(lvl Level, msg string, depth int) *LogRecord {
+func (t *Timber) prepare(lvl Level, extra map[string]string, msg string, depth int) *LogRecord {
 	now := makeTimeLogglyCompat(time.Now())
 	pc, file, line, _ := runtime.Caller(depth)
 	funcPath := "_"
@@ -500,6 +531,7 @@ func (t *Timber) prepare(lvl Level, msg string, depth int) *LogRecord {
 		MethodPath:  methodPath,
 		PackagePath: packagePath,
 		HostName:    hostname,
+		Extra:       extra,
 	}
 }
 
@@ -629,6 +661,40 @@ func (t *Timber) Fatalln(v ...interface{}) {
 	os.Exit(1)
 }
 
+func (t *Timber) FinestEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+	t.prepareAndSendEx(FINEST, extra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
+}
+func (t *Timber) FineEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+	t.prepareAndSendEx(FINE, extra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
+}
+func (t *Timber) DebugEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+	t.prepareAndSendEx(DEBUG, extra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
+}
+func (t *Timber) TraceEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+	t.prepareAndSendEx(TRACE, extra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
+}
+func (t *Timber) InfoEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+	t.prepareAndSendEx(INFO, extra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
+}
+func (t *Timber) WarnEx(extra map[string]string, arg0 interface{}, args ...interface{}) error {
+	msg := fmt.Sprintf(arg0.(string), args...)
+	t.prepareAndSendEx(WARNING, extra, msg, t.FileDepth)
+	return errors.New(msg)
+}
+func (t *Timber) ErrorEx(extra map[string]string, arg0 interface{}, args ...interface{}) error {
+	msg := fmt.Sprintf(arg0.(string), args...)
+	t.prepareAndSendEx(ERROR, extra, msg, t.FileDepth)
+	return errors.New(msg)
+}
+func (t *Timber) CriticalEx(extra map[string]string, arg0 interface{}, args ...interface{}) error {
+	msg := fmt.Sprintf(arg0.(string), args...)
+	t.prepareAndSendEx(CRITICAL, extra, msg, t.FileDepth)
+	return errors.New(msg)
+}
+func (t *Timber) LogEx(extra map[string]string, lvl Level, arg0 interface{}, args ...interface{}) {
+	t.prepareAndSendEx(lvl, extra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
+}
+
 //
 //
 // Default Instance
@@ -668,6 +734,34 @@ func Panicln(v ...interface{})               { Global.Panicln(v...) }
 func Fatal(v ...interface{})                 { Global.Fatal(v...) }
 func Fatalf(format string, v ...interface{}) { Global.Fatalf(format, v...) }
 func Fatalln(v ...interface{})               { Global.Fatalln(v...) }
+
+func FinestEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+	Global.FinestEx(extra, arg0, args...)
+}
+func FineEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+	Global.FineEx(extra, arg0, args...)
+}
+func DebugEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+	Global.DebugEx(extra, arg0, args...)
+}
+func TraceEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+	Global.TraceEx(extra, arg0, args...)
+}
+func InfoEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+	Global.InfoEx(extra, arg0, args...)
+}
+func WarnEx(extra map[string]string, arg0 interface{}, args ...interface{}) error {
+	return Global.WarnEx(extra, arg0, args...)
+}
+func ErrorEx(extra map[string]string, arg0 interface{}, args ...interface{}) error {
+	return Global.ErrorEx(extra, arg0, args...)
+}
+func CriticalEx(extra map[string]string, arg0 interface{}, args ...interface{}) error {
+	return Global.CriticalEx(extra, arg0, args...)
+}
+func LogEx(extra map[string]string, lvl Level, arg0 interface{}, args ...interface{}) {
+	Global.LogEx(extra, lvl, arg0, args...)
+}
 
 func AddLogger(logger ConfigLogger) int { return Global.AddLogger(logger) }
 func Close()                            { Global.Close() }
