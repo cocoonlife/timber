@@ -252,7 +252,7 @@ type LogRecord struct {
 	MethodPath  string
 	PackagePath string
 	HostName    string
-	Extra       map[string]string `json:"extra,omitempty"`
+	Extra       map[string]interface{} `json:"extra,omitempty"`
 }
 
 // Format a log message before writing
@@ -459,15 +459,15 @@ func (t *Timber) SetFormatter(index int, formatter LogFormatter) {
 
 // Logger interface
 func (t *Timber) prepareAndSend(lvl Level, msg string, depth int) {
-	var emptyExtra map[string]string
+	var emptyExtra map[string]interface{}
 	t.doPrepareAndSend(lvl, emptyExtra, msg, depth)
 }
 
-func (t *Timber) prepareAndSendEx(lvl Level, extra map[string]string, msg string, depth int) {
+func (t *Timber) prepareAndSendEx(lvl Level, extra map[string]interface{}, msg string, depth int) {
 	t.doPrepareAndSend(lvl, extra, msg, depth)
 }
 
-func (t *Timber) doPrepareAndSend(lvl Level, extra map[string]string, msg string, depth int) {
+func (t *Timber) doPrepareAndSend(lvl Level, extra map[string]interface{}, msg string, depth int) {
 	select {
 	case <-t.blackHole:
 		// the blackHole always blocks until we close
@@ -505,7 +505,7 @@ func makeTimeLogglyCompat(t time.Time) time.Time {
 	return tLoggly
 }
 
-func (t *Timber) prepare(lvl Level, extra map[string]string, msg string, depth int) *LogRecord {
+func (t *Timber) prepare(lvl Level, extra map[string]interface{}, msg string, depth int) *LogRecord {
 	now := makeTimeLogglyCompat(time.Now())
 	pc, file, line, _ := runtime.Caller(depth)
 	funcPath := "_"
@@ -661,37 +661,37 @@ func (t *Timber) Fatalln(v ...interface{}) {
 	os.Exit(1)
 }
 
-func (t *Timber) FinestEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+func (t *Timber) FinestEx(extra map[string]interface{}, arg0 interface{}, args ...interface{}) {
 	t.prepareAndSendEx(FINEST, extra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
 }
-func (t *Timber) FineEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+func (t *Timber) FineEx(extra map[string]interface{}, arg0 interface{}, args ...interface{}) {
 	t.prepareAndSendEx(FINE, extra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
 }
-func (t *Timber) DebugEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+func (t *Timber) DebugEx(extra map[string]interface{}, arg0 interface{}, args ...interface{}) {
 	t.prepareAndSendEx(DEBUG, extra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
 }
-func (t *Timber) TraceEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+func (t *Timber) TraceEx(extra map[string]interface{}, arg0 interface{}, args ...interface{}) {
 	t.prepareAndSendEx(TRACE, extra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
 }
-func (t *Timber) InfoEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+func (t *Timber) InfoEx(extra map[string]interface{}, arg0 interface{}, args ...interface{}) {
 	t.prepareAndSendEx(INFO, extra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
 }
-func (t *Timber) WarnEx(extra map[string]string, arg0 interface{}, args ...interface{}) error {
+func (t *Timber) WarnEx(extra map[string]interface{}, arg0 interface{}, args ...interface{}) error {
 	msg := fmt.Sprintf(arg0.(string), args...)
 	t.prepareAndSendEx(WARNING, extra, msg, t.FileDepth)
 	return errors.New(msg)
 }
-func (t *Timber) ErrorEx(extra map[string]string, arg0 interface{}, args ...interface{}) error {
+func (t *Timber) ErrorEx(extra map[string]interface{}, arg0 interface{}, args ...interface{}) error {
 	msg := fmt.Sprintf(arg0.(string), args...)
 	t.prepareAndSendEx(ERROR, extra, msg, t.FileDepth)
 	return errors.New(msg)
 }
-func (t *Timber) CriticalEx(extra map[string]string, arg0 interface{}, args ...interface{}) error {
+func (t *Timber) CriticalEx(extra map[string]interface{}, arg0 interface{}, args ...interface{}) error {
 	msg := fmt.Sprintf(arg0.(string), args...)
 	t.prepareAndSendEx(CRITICAL, extra, msg, t.FileDepth)
 	return errors.New(msg)
 }
-func (t *Timber) LogEx(extra map[string]string, lvl Level, arg0 interface{}, args ...interface{}) {
+func (t *Timber) LogEx(extra map[string]interface{}, lvl Level, arg0 interface{}, args ...interface{}) {
 	t.prepareAndSendEx(lvl, extra, fmt.Sprintf(arg0.(string), args...), t.FileDepth)
 }
 
@@ -735,31 +735,31 @@ func Fatal(v ...interface{})                 { Global.Fatal(v...) }
 func Fatalf(format string, v ...interface{}) { Global.Fatalf(format, v...) }
 func Fatalln(v ...interface{})               { Global.Fatalln(v...) }
 
-func FinestEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+func FinestEx(extra map[string]interface{}, arg0 interface{}, args ...interface{}) {
 	Global.FinestEx(extra, arg0, args...)
 }
-func FineEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+func FineEx(extra map[string]interface{}, arg0 interface{}, args ...interface{}) {
 	Global.FineEx(extra, arg0, args...)
 }
-func DebugEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+func DebugEx(extra map[string]interface{}, arg0 interface{}, args ...interface{}) {
 	Global.DebugEx(extra, arg0, args...)
 }
-func TraceEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+func TraceEx(extra map[string]interface{}, arg0 interface{}, args ...interface{}) {
 	Global.TraceEx(extra, arg0, args...)
 }
-func InfoEx(extra map[string]string, arg0 interface{}, args ...interface{}) {
+func InfoEx(extra map[string]interface{}, arg0 interface{}, args ...interface{}) {
 	Global.InfoEx(extra, arg0, args...)
 }
-func WarnEx(extra map[string]string, arg0 interface{}, args ...interface{}) error {
+func WarnEx(extra map[string]interface{}, arg0 interface{}, args ...interface{}) error {
 	return Global.WarnEx(extra, arg0, args...)
 }
-func ErrorEx(extra map[string]string, arg0 interface{}, args ...interface{}) error {
+func ErrorEx(extra map[string]interface{}, arg0 interface{}, args ...interface{}) error {
 	return Global.ErrorEx(extra, arg0, args...)
 }
-func CriticalEx(extra map[string]string, arg0 interface{}, args ...interface{}) error {
+func CriticalEx(extra map[string]interface{}, arg0 interface{}, args ...interface{}) error {
 	return Global.CriticalEx(extra, arg0, args...)
 }
-func LogEx(extra map[string]string, lvl Level, arg0 interface{}, args ...interface{}) {
+func LogEx(extra map[string]interface{}, lvl Level, arg0 interface{}, args ...interface{}) {
 	Global.LogEx(extra, lvl, arg0, args...)
 }
 
