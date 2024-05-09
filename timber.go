@@ -211,15 +211,15 @@ type Logger interface {
 	Logf(lvl Level, arg0 interface{}, args ...interface{})
 
 	// allow passing of extra fields on the fly
-	FinestEx(extra map[string]string, arg0 interface{}, args ...interface{})
-	FineEx(extra map[string]string, arg0 interface{}, args ...interface{})
-	DebugEx(extra map[string]string, arg0 interface{}, args ...interface{})
-	TraceEx(extra map[string]string, arg0 interface{}, args ...interface{})
-	InfoEx(extra map[string]string, arg0 interface{}, args ...interface{})
-	WarnEx(extra map[string]string, arg0 interface{}, args ...interface{}) error
-	ErrorEx(extra map[string]string, arg0 interface{}, args ...interface{}) error
-	CriticalEx(extra map[string]string, arg0 interface{}, args ...interface{}) error
-	LogEx(extra map[string]string, lvl Level, arg0 interface{}, args ...interface{})
+	FinestEx(extra map[string]interface{}, arg0 interface{}, args ...interface{})
+	FineEx(extra map[string]interface{}, arg0 interface{}, args ...interface{})
+	DebugEx(extra map[string]interface{}, arg0 interface{}, args ...interface{})
+	TraceEx(extra map[string]interface{}, arg0 interface{}, args ...interface{})
+	InfoEx(extra map[string]interface{}, arg0 interface{}, args ...interface{})
+	WarnEx(extra map[string]interface{}, arg0 interface{}, args ...interface{}) error
+	ErrorEx(extra map[string]interface{}, arg0 interface{}, args ...interface{}) error
+	CriticalEx(extra map[string]interface{}, arg0 interface{}, args ...interface{}) error
+	LogEx(extra map[string]interface{}, lvl Level, arg0 interface{}, args ...interface{})
 }
 
 // Not used
