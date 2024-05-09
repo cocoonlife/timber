@@ -96,9 +96,12 @@ func TestJSONFormatterLogger(t *testing.T) {
 	)
 	log.Info("Some JSON logging")
 	log.InfoEx(
-		map[string]string{
+		map[string]interface{}{
 			"testExtra":        "hello",
 			"testAnotherExtra": "goodbye",
+			"testInt":          1,
+			"testBool":         true,
+			"testFloat":        20.89,
 		},
 		"Some JSON logging with some extra fields",
 	)
@@ -135,4 +138,7 @@ func TestJSONFormatterLogger(t *testing.T) {
 	mapExtra := extra.(map[string]interface{})
 	a.Equal(mapExtra["testExtra"], "hello")
 	a.Equal(mapExtra["testAnotherExtra"], "goodbye")
+	a.Equal(mapExtra["testInt"], float64(1)) // json.Unmarshal converts JSON numbers to float64, so this is expected
+	a.Equal(mapExtra["testBool"], true)
+	a.Equal(mapExtra["testFloat"], 20.89)
 }
